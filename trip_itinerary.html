@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>特別な旅のしおり</title>
+    <!-- Tailwind CSSを読み込み -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- フォント（Inter, Noto Sans JP, Noto Serif JP） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 基本フォントと背景色 */
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+            /* 中央から広がる淡い円形グラデーション */
+            background: radial-gradient(circle, #F9F6F3 0%, #F0EAE4 100%);
+            color: #4A4A4A;
+        }
+        
+        /* タイトル（セリフ体） */
+        .serif-title {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 700;
+            color: #333;
+        }
+
+        /* カードのスタイル */
+        .content-card {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #F0EAE4;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        /* タイムラインのスタイル */
+        .timeline-item {
+            position: relative;
+            padding-left: 2.5rem; /* 40px */
+            padding-bottom: 2rem; /* 32px */
+            border-left: 2px solid #C0A080;
+        }
+        .timeline-item:last-child {
+            border-left-color: transparent;
+            padding-bottom: 0;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -0.6rem; /* -9px */
+            top: 0.15rem; /* 2px */
+            width: 1.125rem; /* 18px */
+            height: 1.125rem; /* 18px */
+            border-radius: 50%;
+            background-color: #C0A080;
+            border: 3px solid #F9F6F3;
+        }
+        
+        /* スクロールに応じたフェードイン */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* === アンロック機能のためのCSS === */
+        
+        /* 項目を隠す（JavaScriptで .hidden を除去して表示） */
+        .hidden {
+            display: none;
+        }
+
+        /* 表示された時のアニメーション */
+        @keyframes reveal-in {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .revealed {
+            animation: reveal-in 0.6s ease-out;
+        }
+
+        /* アンロック・ボタンのスタイル */
+        .unlock-button {
+            display: inline-block;
+            background-color: #C0A080;
+            color: white;
+            padding: 0.75rem 1.5rem; /* 12px 24px */
+            border-radius: 9999px; /* full rounded */
+            font-weight: bold;
+            text-align: center;
+            margin-top: 1.5rem; /* 24px */
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            box-shadow: 0 4px 10px -2px rgba(192, 160, 128, 0.4);
+        }
+        .unlock-button:hover {
+            background-color: #A08060;
+            transform: scale(1.02);
+        }
+        .unlock-button:active {
+            transform: scale(0.98);
+        }
+
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-2xl mx-auto">
+        
+        <!-- ヘッダー -->
+        <header class="text-center my-8 md:my-12 fade-in">
+            <h1 class="serif-title text-3xl md:text-4xl text-gray-800">Happy Birthday, [奥様の名前]!</h1>
+            <p class="text-lg text-gray-600 mt-2">ふたりだけの特別な旅行</p>
+        </header>
+
+        <main>
+            <!-- メッセージカード -->
+            <section class="content-card p-6 md:p-8 mb-8 fade-in">
+                <h2 class="serif-title text-2xl mb-4 text-center">きみへ</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    お誕生日おめでとう！
+                    <br><br>
+                    いつも本当にありがとう。
+                    日頃の感謝の気持ちを込めて、今日は特別な1日を用意しました。
+                    <br><br>
+                    この「旅のしおり」は、きみのためだけに作ったものです。
+                    一緒に最高の思い出を作ろうね！
+                </p>
+            </section>
+
+            <!-- 旅の予定（タイムライン） -->
+            <section class="content-card p-6 md:p-8 mb-8 fade-in">
+                <h2 class="serif-title text-2xl mb-6 text-center">Today's Plan</h2>
+                
+                <div class="relative">
+                    <!-- 10:30 出発 (最初から表示) -->
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <time class="text-sm font-semibold text-[#8C7D6B]">10:30</time>
+                        <h3 class="text-xl font-bold text-gray-800 mt-1">出発！</h3>
+                        <p class="text-gray-600 mt-1">いよいよ旅行スタート！<br>BGMは[奥様の好きなアーティスト名]でも聴きながら行こうか。</p>
+                        
+                        <!-- 次の項目を開くボタン -->
+                        <button id="unlock-lunch-btn" class="unlock-button w-full">
+                            お昼の場所に到着！
+                        </button>
+                    </div>
+
+                    <!-- 11:30 昼ごはん (最初は非表示) -->
+                    <div id="lunch-item" class="timeline-item hidden">
+                        <div class="timeline-dot"></div>
+                        <time class="text-sm font-semibold text-[#8C7D6B]">11:30〜</time>
+                        <h3 class="text-xl font-bold text-gray-800 mt-1">お昼ごはん</h3>
+                        <p class="text-gray-600 mt-1">
+                            まずは腹ごしらえ。<br>
+                            <a href="https://kikusui-sake.com/home/jp/enjoy/kuragarden/" target="_blank" rel="noopener noreferrer" class="text-[#C0A080] hover:underline">
+                                蔵元直営 KURA GARDEN
+                            </a>
+                            で美味しいランチを楽しもう。
+                        </p>
+
+                        <!-- 次の項目を開くボタン -->
+                        <button id="unlock-hotel-btn" class="unlock-button w-full">
+                            旅館に到着！
+                        </button>
+                    </div>
+
+                    <!-- 14:00 旅館到着 (最初は非表示) -->
+                    <div id="hotel-item" class="timeline-item hidden">
+                        <div class="timeline-dot"></div>
+                        <time class="text-sm font-semibold text-[#8C7D6B]">14:00</time>
+                        <h3 class="text-xl font-bold text-gray-800 mt-1">旅館に到着</h3>
+                        <p class="text-gray-600 mt-1">
+                            今日の宿に到着！<br>
+                            <a href="https://www.koshinosato.com/" target="_blank" rel="noopener noreferrer" class="text-[#C0A080] hover:underline">
+                                白玉の湯 華鳳 別邸 越の里
+                            </a>
+                            で温泉でのんびり、日頃の疲れを癒やしてね。
+                        </p>
+
+                        <!-- 次の項目を開くボタン -->
+                        <button id="unlock-dinner-btn" class="unlock-button w-full">
+                            夜ごはんの時間！
+                        </button>
+                    </div>
+
+                    <!-- 18:00 夜ごはん (最初は非表示) -->
+                    <div id="dinner-item" class="timeline-item hidden">
+                        <div class="timeline-dot"></div>
+                        <time class="text-sm font-semibold text-[#8C7D6B]">18:00〜</time>
+                        <h3 class="text-xl font-bold text-gray-800 mt-1">夜ごはん</h3>
+                        <p class="text-gray-600 mt-1">旅館の美味しいごはん。<br>「村上牛＆新発田牛食べ比べ・伊勢海老料理付」のコース、楽しみだね！</p>
+
+                        <!-- 次の項目を開くボタン -->
+                        <button id="unlock-bath-btn" class="unlock-button w-full">
+                            貸切風呂の時間！
+                        </button>
+                    </div>
+
+                    <!-- 20:00 貸切風呂 (最初は非表示) -->
+                    <div id="bath-item" class="timeline-item hidden">
+                        <div class="timeline-dot"></div>
+                        <time class="text-sm font-semibold text-[#8C7D6B]">20:00</time>
+                        <h3 class="text-xl font-bold text-gray-800 mt-1">貸切風呂</h3>
+                        <p class="text-gray-600 mt-1">
+                            食後はふたりでゆっくり。<br>
+                            貸切風呂で、周りを気にせず最高の時間を過ごそう。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- フッターメッセージ -->
+            <footer class="text-center my-10 fade-in">
+                <p class="text-lg text-gray-700">最高の1日になりますように</p>
+                <p class="text-md text-gray-600 mt-2">from [あなたの名前]</p>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        // === スクロールでフェードインする処理 ===
+        const targets = document.querySelectorAll('.fade-in');
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        targets.forEach(target => {
+            observer.observe(target);
+        });
+
+        // === アンロック機能のJavaScript ===
+        
+        /**
+         * 次の項目を表示し、ボタンを隠す関数
+         * @param {string} itemId - 表示する項目のID
+         * @param {string} buttonId - 押されたボタンのID
+         */
+        function revealNext(itemId, buttonId) {
+            const itemToShow = document.getElementById(itemId);
+            const buttonToHide = document.getElementById(buttonId);
+
+            if (itemToShow && buttonToHide) {
+                // 1. ボタンを隠す
+                buttonToHide.style.display = 'none';
+
+                // 2. 次の項目を表示する
+                itemToShow.classList.remove('hidden');
+                
+                // 3. 表示アニメーションクラスを追加
+                itemToShow.classList.add('revealed');
+
+                // 4. 表示した項目までスクロールする
+                //    (少し遅らせて、表示アニメーションと同期させる)
+                setTimeout(() => {
+                    itemToShow.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest' // 項目の近くにスクロール
+                    });
+                }, 100);
+            }
+        }
+
+        // 各ボタンにイベントリスナーを設定
+        document.getElementById('unlock-lunch-btn').addEventListener('click', () => {
+            revealNext('lunch-item', 'unlock-lunch-btn');
+        });
+        
+        document.getElementById('unlock-hotel-btn').addEventListener('click', () => {
+            revealNext('hotel-item', 'unlock-hotel-btn');
+        });
+
+        document.getElementById('unlock-dinner-btn').addEventListener('click', () => {
+            revealNext('dinner-item', 'unlock-dinner-btn');
+        });
+
+        document.getElementById('unlock-bath-btn').addEventListener('click', () => {
+            revealNext('bath-item', 'unlock-bath-btn');
+        });
+
+    </script>
+
+</body>
+</html>
+
