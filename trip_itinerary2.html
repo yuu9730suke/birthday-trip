@@ -11,37 +11,60 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* === 背景ビデオ === */
+        #background-video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translateX(-50%) translateY(-50%);
+            z-index: -2;
+            object-fit: cover;
+            /* ビデオの上に半透明の黒いフィルターをかける */
+            filter: brightness(0.6);
+        }
+        
         /* 基本フォントと背景色 */
         body {
             font-family: 'Noto Sans JP', 'Inter', sans-serif;
-            /* 中央から広がる淡い円形グラデーション */
-            background: radial-gradient(circle, #F9F6F3 0%, #F0EAE4 100%);
-            color: #4A4A4A;
+            /* 背景ビデオの上にさらに暗いオーバーレイをかける */
+            background-color: rgba(0, 0, 0, 0.3);
+            color: #E0E0E0; /* 基本の文字色を明るいグレーに */
+            overflow-x: hidden; /* 横スクロール防止 */
         }
         
         /* タイトル（セリフ体） */
         .serif-title {
             font-family: 'Noto Serif JP', serif;
             font-weight: 700;
-            color: #333;
+            color: #FFFFFF; /* タイトルは白 */
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
-        /* カードのスタイル */
+        /* === カードのスタイル（グラスモーフィズム） === */
         .content-card {
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-            border: 1px solid #F0EAE4;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            /* 背景ビデオが透けるように調整 */
+            background-color: rgba(10, 10, 10, 0.4); /* 暗く、透明度を調整 */
+            border-radius: 1.5rem; /* 24px */
+            /* ガラスの境界線を表現 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            /* 背景を強くぼかす */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            /* 影を柔らかく */
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.2), 0 4px 10px -4px rgba(0, 0, 0, 0.1);
         }
 
-        /* タイムラインのスタイル */
+        /* === タイムラインのスタイル === */
         .timeline-item {
             position: relative;
             padding-left: 2.5rem; /* 40px */
             padding-bottom: 2rem; /* 32px */
-            border-left: 2px solid #C0A080;
+            /* 線の色を明るく */
+            border-left: 2px solid #E0C0A0;
         }
         .timeline-item:last-child {
             border-left-color: transparent;
@@ -54,15 +77,16 @@
             width: 1.125rem; /* 18px */
             height: 1.125rem; /* 18px */
             border-radius: 50%;
-            background-color: #C0A080;
-            border: 3px solid #F9F6F3;
+            background-color: #E0C0A0; /* テーマカラー */
+            border: 3px solid #1a1a1a; /* 背景色に合わせて調整 */
+            box-shadow: 0 0 10px 2px rgba(224, 192, 160, 0.5); /* 輝きを追加 */
         }
         
-        /* スクロールに応じたフェードイン */
+        /* スクロールに応じたフェードイン（より滑らかに） */
         .fade-in {
             opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            transform: translateY(30px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
         }
         .fade-in.visible {
             opacity: 1;
@@ -80,7 +104,7 @@
         @keyframes reveal-in {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(15px);
             }
             to {
                 opacity: 1;
@@ -88,27 +112,30 @@
             }
         }
         .revealed {
-            animation: reveal-in 0.6s ease-out;
+            animation: reveal-in 0.8s ease-out;
         }
 
-        /* アンロック・ボタンのスタイル */
+        /* === アンロック・ボタンのスタイル === */
         .unlock-button {
             display: inline-block;
-            background-color: #C0A080;
-            color: white;
+            /* テーマカラー（明るめ） */
+            background-color: #D4B090; 
+            color: #333; /* 暗い色の文字で見やすく */
             padding: 0.75rem 1.5rem; /* 12px 24px */
             border-radius: 9999px; /* full rounded */
             font-weight: bold;
             text-align: center;
             margin-top: 1.5rem; /* 24px */
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
             border: none;
-            box-shadow: 0 4px 10px -2px rgba(192, 160, 128, 0.4);
+            /* 影を調整 */
+            box-shadow: 0 6px 15px -3px rgba(212, 176, 144, 0.4);
         }
         .unlock-button:hover {
-            background-color: #A08060;
-            transform: scale(1.02);
+            background-color: #E0C0A0;
+            transform: scale(1.03) translateY(-2px); /* 少し浮き上がる */
+            box-shadow: 0 8px 20px -3px rgba(212, 176, 144, 0.5);
         }
         .unlock-button:active {
             transform: scale(0.98);
@@ -119,12 +146,12 @@
         /* フッターのトリガーが準備完了した時のアニメーション */
         @keyframes subtle-glow {
             0%, 100% {
-                color: #4A4A4A; /* 通常の色 */
+                color: #E0E0E0; /* 通常の色 */
                 text-shadow: none;
             }
             50% {
-                color: #C0A080; /* テーマカラー */
-                text-shadow: 0 0 8px rgba(192, 160, 128, 0.5); /* ほのかな輝き */
+                color: #E0C0A0; /* テーマカラー */
+                text-shadow: 0 0 12px rgba(224, 192, 160, 0.7); /* 輝きを強く */
             }
         }
         .ready-to-reveal {
@@ -139,24 +166,52 @@
             opacity: 1;
             transform: scale(1);
         }
+        
+        /* リンクのスタイル */
+        a.link-style {
+            color: #E0C0A0; /* テーマカラー */
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+        a.link-style:hover {
+            color: #F0D8C0;
+            text-decoration: underline;
+            text-shadow: 0 0 8px rgba(224, 192, 160, 0.5);
+        }
+
+        /* 絵文字を少し大きく */
+        .emoji-icon {
+            font-size: 1.25em;
+            margin-right: 0.5rem;
+            display: inline-block;
+            transform: translateY(2px);
+        }
 
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
 
-    <div class="max-w-2xl mx-auto">
+    <!-- 背景ビデオ -->
+    <!-- Pexelsの美しい海のビデオを使用（差し替え可能） -->
+    <video autoplay loop muted playsinline id="background-video">
+        <source src="https://videos.pexels.com/video-files/854936/854936-hd_1920_1080_25fps.mp4" type="video/mp4">
+        <!-- ビデオを読み込めない場合のフォールバック（何も表示しないか、静止画を置く） -->
+    </video>
+
+    <div class="max-w-2xl mx-auto relative z-10">
         
         <!-- ヘッダー -->
-        <header class="text-center my-8 md:my-12 fade-in">
-            <h1 class="serif-title text-3xl md:text-4xl text-gray-800">〜最高に贅沢な旅行〜</h1>
-            <p class="text-lg text-gray-600 mt-2">今日だけは全部忘れて二人で楽しもう！！</p>
+        <header class="text-center my-12 md:my-16 fade-in">
+            <h1 class="serif-title text-4xl md:text-5xl">〜最高に贅沢な旅行〜</h1>
+            <p class="text-lg text-gray-200 mt-4">今日だけは全部忘れて二人で楽しもう！！</p>
         </header>
 
         <main>
             <!-- メッセージカード -->
             <section class="content-card p-6 md:p-8 mb-8 fade-in">
-                <h2 class="serif-title text-2xl mb-4 text-center">爽へ</h2>
-                <p class="text-gray-700 leading-relaxed">
+                <h2 class="serif-title text-3xl mb-5 text-center">爽へ</h2>
+                <p class="text-gray-200 leading-relaxed text-lg">
                     改めて、誕生日おめでとう！
                     <br><br>
                     ようやく待ちに待ったこの日がやってきたよ！<br>
@@ -171,30 +226,36 @@
 
             <!-- 旅の予定（タイムライン） -->
             <section class="content-card p-6 md:p-8 mb-8 fade-in">
-                <h2 class="serif-title text-2xl mb-6 text-center">Today's Plan</h2>
+                <h2 class="serif-title text-3xl mb-8 text-center">Today's Plan</h2>
                 
                 <div class="relative">
                     <!-- 10:30 出発 (最初から表示) -->
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
-                        <time class="text-sm font-semibold text-[#8C7D6B]">10:30</time>
-                        <h3 class="text-xl font-bold text-gray-800 mt-1">出発！</h3>
-                        <p class="text-gray-600 mt-1">いよいよ旅行スタート！<br>最初の目的地はどこでしょうか？？</p>
+                        <time class="text-sm font-semibold text-[#E0C0A0]">10:30</time>
+                        <h3 class="text-2xl font-bold text-gray-100 mt-1">
+                            <span class="emoji-icon">🚗</span>出発！
+                        </h3>
+                        <p class="text-gray-300 mt-2">
+                            いよいよ旅行スタート！<br>最初の目的地はどこでしょうか？？
+                        </p>
                         
                         <!-- 次の項目を開くボタン -->
                         <button id="unlock-lunch-btn" class="unlock-button w-full">
-                            お昼の場所に到着！
+                            お昼の場所に到着！ 👇
                         </button>
                     </div>
 
                     <!-- 11:30 昼ごはん (最初は非表示) -->
                     <div id="lunch-item" class="timeline-item hidden">
                         <div class="timeline-dot"></div>
-                        <time class="text-sm font-semibold text-[#8C7D6B]">11:30〜</time>
-                        <h3 class="text-xl font-bold text-gray-800 mt-1">お昼ごはん</h3>
-                        <p class="text-gray-600 mt-1">
+                        <time class="text-sm font-semibold text-[#E0C0A0]">11:30〜</time>
+                        <h3 class="text-2xl font-bold text-gray-100 mt-1">
+                            <span class="emoji-icon">🍽️</span>お昼ごはん
+                        </h3>
+                        <p class="text-gray-300 mt-2">
                             まずは腹ごしらえ。<br>
-                            <a href="https://kikusui-sake.com/home/jp/enjoy/kuragarden/" target="_blank" rel="noopener noreferrer" class="text-[#C0A080] hover:underline">
+                            <a href="https://kikusui-sake.com/home/jp/enjoy/kuragarden/" target="_blank" rel="noopener noreferrer" class="link-style">
                                 蔵元直営 KURA GARDEN
                             </a>
                             で美味しいランチを楽しもう。
@@ -202,18 +263,20 @@
 
                         <!-- 次の項目を開くボタン -->
                         <button id="unlock-hotel-btn" class="unlock-button w-full">
-                            旅館に到着！
+                            旅館に到着！ 👇
                         </button>
                     </div>
 
                     <!-- 14:00 旅館到着 (最初は非表示) -->
                     <div id="hotel-item" class="timeline-item hidden">
                         <div class="timeline-dot"></div>
-                        <time class="text-sm font-semibold text-[#8C7D6B]">14:00</time>
-                        <h3 class="text-xl font-bold text-gray-800 mt-1">旅館に到着</h3>
-                        <p class="text-gray-600 mt-1">
+                        <time class="text-sm font-semibold text-[#E0C0A0]">14:00</time>
+                        <h3 class="text-2xl font-bold text-gray-100 mt-1">
+                            <span class="emoji-icon">♨️</span>旅館に到着
+                        </h3>
+                        <p class="text-gray-300 mt-2">
                             今日の宿に到着！<br>
-                            <a href="https://www.koshinosato.com/" target="_blank" rel="noopener noreferrer" class="text-[#C0A080] hover:underline">
+                            <a href="https://www.koshinosato.com/" target="_blank" rel="noopener noreferrer" class="link-style">
                                 白玉の湯 華鳳 別邸 越の里
                             </a>
                             で温泉でのんびり、日頃の疲れを癒やしてね。
@@ -221,29 +284,33 @@
 
                         <!-- 次の項目を開くボタン -->
                         <button id="unlock-dinner-btn" class="unlock-button w-full">
-                            夜ごはんの時間！
+                            夜ごはんの時間！ 👇
                         </button>
                     </div>
 
                     <!-- 18:00 夜ごはん (最初は非表示) -->
                     <div id="dinner-item" class="timeline-item hidden">
                         <div class="timeline-dot"></div>
-                        <time class="text-sm font-semibold text-[#8C7D6B]">18:00〜</time>
-                        <h3 class="text-xl font-bold text-gray-800 mt-1">夜ごはん</h3>
-                        <p class="text-gray-600 mt-1">旅館の美味しいごはん。<br>「村上牛＆新発田牛食べ比べ・伊勢海老料理付」のコース、楽しみだね！</p>
+                        <time class="text-sm font-semibold text-[#E0C0A0]">18:00〜</time>
+                        <h3 class="text-2xl font-bold text-gray-100 mt-1">
+                            <span class="emoji-icon">🥂</span>夜ごはん
+                        </h3>
+                        <p class="text-gray-300 mt-2">旅館の美味しいごはん。<br>「村上牛＆新発田牛食べ比べ・伊勢海老料理付」のコース、楽しみだね！</p>
 
                         <!-- 次の項目を開くボタン -->
                         <button id="unlock-bath-btn" class="unlock-button w-full">
-                            貸切風呂の時間！
+                            貸切風呂の時間！ 👇
                         </button>
                     </div>
 
                     <!-- 20:00 貸切風呂 (最初は非表示) -->
                     <div id="bath-item" class="timeline-item hidden">
                         <div class="timeline-dot"></div>
-                        <time class="text-sm font-semibold text-[#8C7D6B]">21:00？</time>
-                        <h3 class="text-xl font-bold text-gray-800 mt-1">貸切風呂</h3>
-                        <p class="text-gray-600 mt-1">
+                        <time class="text-sm font-semibold text-[#E0C0A0]">21:00？</time>
+                        <h3 class="text-2xl font-bold text-gray-100 mt-1">
+                            <span class="emoji-icon">🌙</span>貸切風呂
+                        </h3>
+                        <p class="text-gray-300 mt-2">
                             食後はふたりでゆっくり。<br>
                             貸切風呂で、周りを気にせず最高の時間を過ごそう。
                         </p>
@@ -253,13 +320,11 @@
             </section>
 
             <!-- フッターメッセージ -->
-            <footer class="text-center my-10 fade-in">
-                <p class="text-lg text-gray-700">最高の1日になりますように</p>
-                <!-- ↓↓↓ IDとスタイルを変更 ↓↓↓ -->
-                <p class="text-md text-gray-600 mt-2">
-                    from <span id="footer-trigger" class="cursor-pointer transition-colors duration-300 hover:text-[#C0A080]">勇介</span>
+            <footer class="text-center my-12 md:my-16 fade-in">
+                <p class="text-lg text-gray-200">最高の1日になりますように</p>
+                <p class="text-md text-gray-300 mt-2">
+                    from <span id="footer-trigger" class="cursor-pointer transition-colors duration-300 hover:text-[#E0C0A0] font-semibold">勇介</span>
                 </p>
-                <!-- ↑↑↑ IDとスタイルを変更 ↑↑↑ -->
             </footer>
         </main>
     </div>
@@ -271,15 +336,15 @@
         <div id="secret-message-card" class="content-card p-6 md:p-10 max-w-lg w-full text-center relative transform scale-95 transition-all duration-500 opacity-0">
             
             <!-- 閉じるボタン -->
-            <button id="close-message-btn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 transition-colors" aria-label="閉じる">
+            <button id="close-message-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-50" aria-label="閉じる">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
 
-            <h2 class="serif-title text-2xl md:text-3xl mb-6 text-[#C0A080]">日頃の感謝を込めて</h2>
+            <h2 class="serif-title text-2xl md:text-3xl mb-6 text-[#E0C0A0]">日頃の感謝を込めて</h2>
             
-            <p class="text-gray-700 leading-relaxed text-left mb-6">
+            <p class="text-gray-200 leading-relaxed text-left mb-6 text-lg">
                 爽へ<br><br>
                 今日一日楽しんでくれたかな？<br>
                 俺はおそらくめっちゃ楽しんでたと思う！<br>
@@ -293,7 +358,7 @@
                 大好きだよ。<br><br>
             </p>
 
-            <p class="text-lg font-semibold text-gray-800">勇介より</p>
+            <p class="text-xl font-semibold text-gray-100">勇介より</p>
 
         </div>
 
