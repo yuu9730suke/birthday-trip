@@ -188,6 +188,18 @@
             transform: translateY(2px);
         }
 
+        /* === タイピングカーソルのスタイル === */
+        @keyframes blink-caret {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .typing-cursor {
+            display: inline-block;
+            animation: blink-caret 0.75s step-end infinite;
+            color: #E0C0A0; /* テーマカラー */
+            margin-left: 2px;
+        }
+
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
@@ -237,7 +249,7 @@
                             <span class="emoji-icon">🚗</span>出発！
                         </h3>
                         <p class="text-gray-300 mt-2">
-                            いよいよ旅行スタート！<br>最初の目的地はどこでしょうか？？
+                            いよいよ旅行スタート！<br>BGMは[奥様の好きなアーティスト名]でも聴きながら行こうか。
                         </p>
                         
                         <!-- 次の項目を開くボタン -->
@@ -333,7 +345,8 @@
     <!-- === 隠しメッセージモーダル === -->
     <div id="secret-message-overlay" class="fixed inset-0 bg-black bg-opacity-70 backdrop-filter backdrop-blur-sm flex items-center justify-center p-4 z-40 hidden transition-opacity duration-500 opacity-0">
         
-        <div id="secret-message-card" class="content-card p-6 md:p-10 max-w-lg w-full text-center relative transform scale-95 transition-all duration-500 opacity-0">
+        <!-- ▼▼▼ カードに max-h-[90vh] と overflow-y-auto を追加 ▼▼▼ -->
+        <div id="secret-message-card" class="content-card p-6 md:p-10 max-w-lg w-full text-center relative transform scale-95 transition-all duration-500 opacity-0 max-h-[90vh] overflow-y-auto">
             
             <!-- 閉じるボタン -->
             <button id="close-message-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-50" aria-label="閉じる">
@@ -344,19 +357,12 @@
 
             <h2 class="serif-title text-2xl md:text-3xl mb-6 text-[#E0C0A0]">日頃の感謝を込めて</h2>
             
-            <p class="text-gray-200 leading-relaxed text-left mb-6 text-lg">
-                爽へ<br><br>
-                今日一日楽しんでくれたかな？<br>
-                俺はおそらくめっちゃ楽しんでたと思う！<br>
-                お風呂は二人で沢山入れてるといいなぁ、、、<br><br>
-                ようやく安定期に入って、残りあと5ヶ月くらい。<br>
-                俺たち二人の子供も、順調に育ってくれてるね！<br>
-                爽がしんどい思いをしながら、お腹の中で赤ちゃんを育ててくれてること、<br>
-                本当に感謝しています。いつもありがとう！<br>
-                これから先、子供が生まれてから、楽しいことも大変なことも沢山あると思うけれど、<br>
-                何事もポジティブに捉えて、三人で一緒に乗り越えていこうね！<br>
-                大好きだよ。<br><br>
+            <!-- ▼▼▼ メッセージ本文の <p> タグにIDを追加し、中身を空に ▼▼▼ -->
+            <p id="secret-text-content" class="text-gray-200 leading-relaxed text-left mb-6 text-lg" style="min-height: 200px;">
+                <!-- JavaScriptによってここにテキストが挿入される -->
             </p>
+            <!-- ▲▲▲ メッセージ本文の <p> タグ ▲▲▲ -->
+
 
             <p class="text-xl font-semibold text-gray-100">勇介より</p>
 
@@ -441,39 +447,125 @@
             }
         });
 
-        // === 隠しメッセージの表示・非表示ロジック ===
+        // === 隠しメッセージの表示・非表示ロジック (変更あり) ===
         const overlay = document.getElementById('secret-message-overlay');
         const closeBtn = document.getElementById('close-message-btn');
         const footerTrigger = document.getElementById('footer-trigger');
+        const textContentElement = document.getElementById('secret-text-content'); // 対象のp要素
+
+        // 表示するテキストの配列（<br>をそのままHTMLタグとして含める）
+        const messageLines = [
+            "爽へ",
+            "<br><br>",
+            "今日一日楽しんでくれたかな？",
+            "<br>",
+            "俺はおそらくめっちゃ楽しんでたと思う！",
+            "<br>",
+            "お風呂は二人で沢山入れてるといいなぁ、、、",
+            "<br><br>",
+            "ようやく安定期に入って、残りあと5ヶ月くらい。",
+            "<br>",
+            "俺たち二人の子供も、順調に育ってくれてるね！",
+            "<br>",
+            "爽がしんどい思いをしながら、お腹の中で赤ちゃんを育ててくれてること、",
+            "<br>",
+            "本当に感謝しています。いつもありがとう！",
+            "<br>",
+            "これから先、子供が生まれてから、楽しいことも大変なことも沢山あると思うけれど、",
+            "<br>",
+            "何事もポジティブに捉えて、三人で一緒に乗り越えていこうね！",
+            "<br>",
+            "大好きだよ。",
+            "<br><br>"
+        ];
+
+        let lineIndex = 0;
+        let messageTimer = null; // タイマーのIDを保持
 
         // メッセージを表示する関数
         function showSecretMessage() {
-            if (!overlay) return;
-            
-            // 表示クラスを追加
+            if (!overlay || !textContentElement) return;
+
+            // 1. テキストをリセット
+            textContentElement.innerHTML = '';
+            lineIndex = 0;
+            if (messageTimer) {
+                clearInterval(messageTimer);
+                messageTimer = null;
+            }
+
+            // 2. モーダルを表示
             overlay.classList.remove('hidden');
             setTimeout(() => {
                 overlay.classList.add('visible');
             }, 10); // わずかな遅延でCSS transitionを確実に発火させる
 
-            // フッターのアニメーションとイベントを削除（一回きりのため）
+            // 3. フッターの処理（既存）
             if (footerTrigger) {
                 footerTrigger.classList.remove('ready-to-reveal');
                 footerTrigger.removeEventListener('click', showSecretMessage);
-                footerTrigger.style.cursor = 'default'; // カーソルを通常に戻す
+                footerTrigger.style.cursor = 'default';
             }
+
+            // 4. テキストの順次表示を開始 (モーダル表示アニメーションとほぼ同時に開始)
+            messageTimer = setInterval(() => {
+                if (lineIndex < messageLines.length) {
+                    
+                    // 以前のカーソルがあれば削除
+                    const oldCursor = textContentElement.querySelector('.typing-cursor');
+                    if(oldCursor) {
+                        oldCursor.remove();
+                    }
+
+                    // テキストを追加
+                    let line = messageLines[lineIndex];
+                    textContentElement.innerHTML += line;
+
+                    // カーソルを追加
+                    const cursorSpan = document.createElement('span');
+                    cursorSpan.className = 'typing-cursor';
+                    cursorSpan.innerHTML = '▋'; // ブロックカーソル
+                    textContentElement.appendChild(cursorSpan);
+
+                    lineIndex++;
+                    
+                    // モーダル本体（カード）のスクロールを一番下に移動
+                    const modalCard = document.getElementById('secret-message-card');
+                    modalCard.scrollTop = modalCard.scrollHeight;
+
+                } else {
+                    // すべて表示し終わったらタイマー停止
+                    clearInterval(messageTimer);
+                    messageTimer = null;
+                    // 最後のカーソルを削除
+                    const oldCursor = textContentElement.querySelector('.typing-cursor');
+                    if(oldCursor) {
+                        oldCursor.remove();
+                    }
+                }
+            }, 1000); // 2秒間隔
         }
 
         // メッセージを非表示にする関数
         function hideSecretMessage() {
             if (!overlay) return;
 
-            // 表示クラスを削除（フェードアウトさせる）
+            // 1. 表示クラスを削除（フェードアウトさせる）
             overlay.classList.remove('visible');
+
+            // 2. タイマーを停止（開いた直後に閉じられた場合のため）
+            if (messageTimer) {
+                clearInterval(messageTimer);
+                messageTimer = null;
+            }
             
-            // transition（0.5秒）の後に hidden クラスを戻す
+            // 3. transition（0.5秒）の後に hidden クラスを戻し、テキストをリセット
             setTimeout(() => {
                 overlay.classList.add('hidden');
+                if (textContentElement) {
+                    textContentElement.innerHTML = ''; // テキストを空にする
+                }
+                lineIndex = 0; // インデックスをリセット
             }, 500);
         }
 
@@ -495,3 +587,4 @@
 
 </body>
 </html>
+
