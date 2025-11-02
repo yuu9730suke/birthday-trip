@@ -114,6 +114,32 @@
             transform: scale(0.98);
         }
 
+        /* === 隠しメッセージのスタイル === */
+        
+        /* フッターのトリガーが準備完了した時のアニメーション */
+        @keyframes subtle-glow {
+            0%, 100% {
+                color: #4A4A4A; /* 通常の色 */
+                text-shadow: none;
+            }
+            50% {
+                color: #C0A080; /* テーマカラー */
+                text-shadow: 0 0 8px rgba(192, 160, 128, 0.5); /* ほのかな輝き */
+            }
+        }
+        .ready-to-reveal {
+            animation: subtle-glow 2.5s ease-in-out infinite;
+        }
+
+        /* モーダル表示時のスタイル */
+        #secret-message-overlay.visible {
+            opacity: 1;
+        }
+        #secret-message-overlay.visible #secret-message-card {
+            opacity: 1;
+            transform: scale(1);
+        }
+
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
@@ -221,6 +247,7 @@
                             食後はふたりでゆっくり。<br>
                             貸切風呂で、周りを気にせず最高の時間を過ごそう。
                         </p>
+                        <!-- この項目が開くと、フッターの「勇介」が光り始める -->
                     </div>
                 </div>
             </section>
@@ -228,10 +255,51 @@
             <!-- フッターメッセージ -->
             <footer class="text-center my-10 fade-in">
                 <p class="text-lg text-gray-700">最高の1日になりますように</p>
-                <p class="text-md text-gray-600 mt-2">from 勇介</p>
+                <!-- ↓↓↓ IDとスタイルを変更 ↓↓↓ -->
+                <p class="text-md text-gray-600 mt-2">
+                    from <span id="footer-trigger" class="cursor-pointer transition-colors duration-300 hover:text-[#C0A080]">勇介</span>
+                </p>
+                <!-- ↑↑↑ IDとスタイルを変更 ↑↑↑ -->
             </footer>
         </main>
     </div>
+
+
+    <!-- === 隠しメッセージモーダル === -->
+    <div id="secret-message-overlay" class="fixed inset-0 bg-black bg-opacity-70 backdrop-filter backdrop-blur-sm flex items-center justify-center p-4 z-40 hidden transition-opacity duration-500 opacity-0">
+        
+        <div id="secret-message-card" class="content-card p-6 md:p-10 max-w-lg w-full text-center relative transform scale-95 transition-all duration-500 opacity-0">
+            
+            <!-- 閉じるボタン -->
+            <button id="close-message-btn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 transition-colors" aria-label="閉じる">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <h2 class="serif-title text-2xl md:text-3xl mb-6 text-[#C0A080]">日頃の感謝を込めて</h2>
+            
+            <p class="text-gray-700 leading-relaxed text-left mb-6">
+                爽へ<br><br>
+                今日一日楽しんでくれたかな？<br>
+                俺はおそらくめっちゃ楽しんでたと思う！<br>
+                お風呂は二人で沢山入れてるといいなぁ、、、<br><br>
+                ようやく安定期に入って、残りあと5ヶ月くらい。<br>
+                俺たち二人の子供も、順調に育ってくれてるね！<br>
+                爽がしんどい思いをしながら、お腹の中で赤ちゃんを育ててくれてること、<br>
+                本当に感謝しています。いつもありがとう！<br>
+                これから先、子供が生まれてから、楽しいことも大変なことも沢山あると思うけれど、<br>
+                何事もポジティブに捉えて、三人で一緒に乗り越えていこうね！<br>
+                大好きだよ。<br><br>
+            </p>
+
+            <p class="text-lg font-semibold text-gray-800">勇介より</p>
+
+        </div>
+
+    </div>
+    <!-- === 隠しメッセージモーダルここまで === -->
+
 
     <script>
         // === スクロールでフェードインする処理 ===
@@ -270,11 +338,10 @@
                 itemToShow.classList.add('revealed');
 
                 // 4. 表示した項目までスクロールする
-                //    (少し遅らせて、表示アニメーションと同期させる)
                 setTimeout(() => {
                     itemToShow.scrollIntoView({
                         behavior: 'smooth',
-                        block: 'nearest' // 項目の近くにスクロール
+                        block: 'nearest'
                     });
                 }, 100);
             }
@@ -293,12 +360,73 @@
             revealNext('dinner-item', 'unlock-dinner-btn');
         });
 
+        // ▼▼▼ ここからがサプライズのロジック ▼▼▼
         document.getElementById('unlock-bath-btn').addEventListener('click', () => {
+            // 最後の項目を表示
             revealNext('bath-item', 'unlock-bath-btn');
+
+            // フッターのトリガーを取得
+            const footerTrigger = document.getElementById('footer-trigger');
+            if (footerTrigger) {
+                // フッターがクリック可能になったことを示すアニメーションクラスを追加
+                footerTrigger.classList.add('ready-to-reveal');
+                
+                // フッターにクリックイベントを設定
+                footerTrigger.addEventListener('click', showSecretMessage);
+            }
         });
+
+        // === 隠しメッセージの表示・非表示ロジック ===
+        const overlay = document.getElementById('secret-message-overlay');
+        const closeBtn = document.getElementById('close-message-btn');
+        const footerTrigger = document.getElementById('footer-trigger');
+
+        // メッセージを表示する関数
+        function showSecretMessage() {
+            if (!overlay) return;
+            
+            // 表示クラスを追加
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.add('visible');
+            }, 10); // わずかな遅延でCSS transitionを確実に発火させる
+
+            // フッターのアニメーションとイベントを削除（一回きりのため）
+            if (footerTrigger) {
+                footerTrigger.classList.remove('ready-to-reveal');
+                footerTrigger.removeEventListener('click', showSecretMessage);
+                footerTrigger.style.cursor = 'default'; // カーソルを通常に戻す
+            }
+        }
+
+        // メッセージを非表示にする関数
+        function hideSecretMessage() {
+            if (!overlay) return;
+
+            // 表示クラスを削除（フェードアウトさせる）
+            overlay.classList.remove('visible');
+            
+            // transition（0.5秒）の後に hidden クラスを戻す
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 500);
+        }
+
+        // 閉じるボタンと背景オーバーレイにイベントを設定
+        if (closeBtn) {
+            closeBtn.addEventListener('click', hideSecretMessage);
+        }
+        if (overlay) {
+            // 背景クリックで閉じる（カード自体は除く）
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    hideSecretMessage();
+                }
+            });
+        }
+        // ▲▲▲ サプライズのロジックここまで ▲▲▲
 
     </script>
 
 </body>
 </html>
-
